@@ -32,10 +32,10 @@ public class AcsMain {
                     //System.setProperty("jna.debug_load", "true");
                     if(osSelect.isWindows())
                         //win系统加载库路径
-                        strDllPath = System.getProperty("user.dir")+"\\lib\\HCNetSDK.dll";
+                        strDllPath = System.getProperty("user.dir")+"\\lib\\win\\HCNetSDK.dll";
                     else if(osSelect.isLinux())
                         //Linux系统加载库路径
-                        strDllPath =  System.getProperty("user.dir")+"/lib/libhcnetsdk.so";
+                        strDllPath =  System.getProperty("user.dir")+"/lib/linux/libhcnetsdk.so";
                     hCNetSDK = (HCNetSDK) Native.loadLibrary(strDllPath, HCNetSDK.class);
                 }catch (Exception ex) {
                     System.out.println("loadLibrary: " + strDllPath + " Error: " + ex.getMessage());
@@ -65,8 +65,8 @@ public class AcsMain {
             HCNetSDK.BYTE_ARRAY ptrByteArray1 = new HCNetSDK.BYTE_ARRAY(256);
             HCNetSDK.BYTE_ARRAY ptrByteArray2 = new HCNetSDK.BYTE_ARRAY(256);
             //这里是库的绝对路径，请根据实际情况修改，注意改路径必须有访问权限
-            String strPath1 = System.getProperty("user.dir")+"/lib/libcrypto.so.1.1";
-            String strPath2 = System.getProperty("user.dir")+"/lib/libssl.so.1.1";
+            String strPath1 = System.getProperty("user.dir")+"/lib/linux/libcrypto.so.1.1";
+            String strPath2 = System.getProperty("user.dir")+"/lib/linux/libssl.so.1.1";
 
             System.arraycopy(strPath1.getBytes(), 0, ptrByteArray1.byValue, 0, strPath1.length());
             ptrByteArray1.write();
@@ -76,7 +76,7 @@ public class AcsMain {
             ptrByteArray2.write();
             hCNetSDK.NET_DVR_SetSDKInitCfg(4, ptrByteArray2.getPointer());
 
-            String strPathCom = System.getProperty("user.dir")+"/lib/";
+            String strPathCom = System.getProperty("user.dir")+"/lib/linux/";
             HCNetSDK.NET_DVR_LOCAL_SDK_PATH struComPath = new HCNetSDK.NET_DVR_LOCAL_SDK_PATH();
             System.arraycopy(strPathCom.getBytes(), 0, struComPath.sPath, 0, strPathCom.length());
             struComPath.write();
