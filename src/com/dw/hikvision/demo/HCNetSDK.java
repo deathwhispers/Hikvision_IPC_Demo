@@ -15,7 +15,6 @@ public interface HCNetSDK extends Library {
 
     /*** 宏定义 ***/
     //常量
-
     public static final int MAX_NAMELEN = 16;    //DVR本地登陆名
     public static final int MAX_RIGHT = 32;    //设备支持的权限（1-12表示本地权限，13-32表示远程权限）
     public static final int NAME_LEN = 32;    //用户名长度
@@ -9924,7 +9923,7 @@ DVR实现巡航数据结构
     void NET_DVR_ReleaseG722Decoder(Pointer pDecHandle);
 
     //G711: Win64、Linux32、Linux64
-    Pointer NET_DVR_InitG711Encoder(Pointer enc_info); //NET_DVR_AUDIOENC_INFO
+    Pointer NET_DVR_InitG711Encoder(NET_DVR_AUDIOENC_INFO enc_info);
 
     boolean NET_DVR_EncodeG711Frame(Pointer handle, NET_DVR_AUDIOENC_PROCESS_PARAM p_enc_proc_param);
 

@@ -22,5 +22,12 @@
             <scope>system</scope>
             <systemPath>${project.basedir}/lib/examples.jar</systemPath>
         </dependency>
+        <dependency>
+            <groupId>com.dw.hikvision</groupId>
+            <artifactId>json</artifactId>
+            <version>0.0.1</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/json.jar</systemPath>
+        </dependency>
     </dependencies>
 </project>
