@@ -529,6 +529,8 @@ public interface HCNetSDK extends Library {
     public static final int NET_DVR_SET_PTZPOS = 292;    //云台设置PTZ位置
     public static final int NET_DVR_GET_PTZPOS = 293;        //云台获取PTZ位置
     public static final int NET_DVR_GET_PTZSCOPE = 294;//云台获取PTZ范围
+    public static final int NET_DVR_GET_PTZLOCKCFG=3287;//获取云台锁定信息
+    public static final int  NET_DVR_SET_PTZLOCKCFG=3288;//设置云台锁定信息
 
     public static final int NET_DVR_COMPLETE_RESTORE_CTRL = 3420;    //设置完全恢复出厂值
     /***************************
@@ -2247,11 +2249,13 @@ public interface HCNetSDK extends Library {
     }
 
     public static class NET_DVR_IPCHANINFO extends Structure {/* IP通道匹配参数 */
-        public byte byEnable;                    /* 该通道是否启用 */
-        public byte byIPID;                    /* IP设备ID 取值1- MAX_IP_DEVICE */
+        public byte byEnable;                    /* 该通道是否在线 */
+        public byte byIPID;                    //IP设备ID低8位，当设备ID为0时表示通道不可用
         public byte byChannel;                    /* 通道号 */
-        public byte[] byres = new byte[33];                    /* 保留 */
-
+        public byte byIPIDHigh;                // IP设备ID的高8位
+        public byte byTransProtocol;            //传输协议类型0-TCP/auto(具体有设备决定)，1-UDP 2-多播 3-仅TCP 4-auto
+        public byte byGetStream;         /* 是否对该通道取流，0-是，1-否*/
+        public byte[] byres=new byte[30];                    /* 保留 */
 
     }
 
@@ -9157,6 +9161,12 @@ DVR实现巡航数据结构
         public byte byGrayLevel; //灰度值域，0-[0-255]，1-[16-235]
     }
 
+    //云台锁定配置结构体
+    public static class NET_DVR_PTZ_LOCKCFG extends Structure {
+        public int dwSize;//结构体大小
+        public byte  byWorkMode ;//云台锁定控制：0- 解锁，1- 锁定
+        public byte[] byRes = new byte[123];
+    }
 
     public static class NET_DVR_GAIN extends Structure {
         public byte byGainLevel; /*增益：0-100*/
@@ -9479,6 +9489,10 @@ DVR实现巡航数据结构
 
     }
 
+    //因为Java没有二维数组，BYTE_TWODIM是自定义的结构体
+    public static class BYTE_TWODIM extends Structure {
+        public byte[] strIP = new byte[16];
+    }
 
     /***
      * API函数声明,详细说明见API手册
@@ -10241,7 +10255,7 @@ DVR实现巡航数据结构
 
     boolean NET_DVR_InquestStopResume(int lHandle);
 
-    boolean NET_DVR_GetLocalIP(byte[] strIP, IntByReference pValidNum, boolean pEnableBind);
+    boolean NET_DVR_GetLocalIP(BYTE_TWODIM[] strIP, IntByReference pValidNum, boolean pEnableBind);
 
     boolean NET_DVR_SetValidIP(int dwIPIndex, boolean bEnableBind);
 
