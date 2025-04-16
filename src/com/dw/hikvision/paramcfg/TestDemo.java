@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * @create 2020-07-27-10:42
@@ -80,7 +81,7 @@ public class TestDemo {
             hCNetSDK.NET_DVR_SetSDKInitCfg(2, struComPath.getPointer());
         }
 
-        //SDK初始化，一个程序进程只需要调用一次
+        // SDK初始化，一个程序进程只需要调用一次
         hCNetSDK.NET_DVR_Init();
 
         if (fExceptionCallBack == null) {
@@ -95,23 +96,94 @@ public class TestDemo {
         //启用SDK写日志
         hCNetSDK.NET_DVR_SetLogToFile(3, "./sdkLog", false);
 
-
         //登录设备，每一台设备只需要登录一次
-        lUserID = TestDemo.login_V40("10.16.36.13", (short) 8000, "admin", "hik12345");
+        lUserID = TestDemo.login_V40("100.65.62.23", (short) 8000, "admin", "xhy12345");
+
+        // 2. 获取SDK版本信息
+        System.out.println("== SDK版本信息 ==");
+
+        // (a) 获取基础版本号
+        int version = hCNetSDK.NET_DVR_GetSDKVersion();
+        int major = (version >> 16) & 0xFFFF;
+        int minor = version & 0xFFFF;
+        System.out.println("基础版本: " + major + "." + minor);
+
+        // (b) 获取构建版本（如补丁号、日期）
+/*        HCNetSDK.NET_DVR_SDK_BUILD_VERSION buildVersion = new HCNetSDK.NET_DVR_SDKABL();
+        buildVersion.dwSize = buildVersion.size(); // 必须设置结构体大小
+        int result = IHCP_SDK.INSTANCE.NET_DVR_GetSDKBuildVersion(buildVersion);
+        if (result == 1) {
+            System.out.println("构建版本号: " + buildVersion.dwBuildVersion);
+            System.out.println("构建日期: " + buildVersion.dwBuildDate);
+            System.out.println("备注信息: " + new String(buildVersion.szBuildNote));
+        } else {
+            System.out.println("获取构建版本失败: " + IHCP_SDK.INSTANCE.NET_DVR_GetLastError());
+        }*/
+
+        // 2. 获取SDK状态信息
+        System.out.println("\n== SDK状态信息 ==");
+        HCNetSDK.NET_DVR_SDKSTATE sdkState = new HCNetSDK.NET_DVR_SDKSTATE();
+
+        boolean result = hCNetSDK.NET_DVR_GetSDKState(sdkState);
+        if (result) {
+            // 清晰输出每个字段
+            System.out.printf("当前登录用户数: %d%n", sdkState.dwTotalLoginNum);
+            System.out.printf("实时预览路数: %d%n", sdkState.dwTotalRealPlayNum);
+            System.out.printf("回放/下载路数: %d%n", sdkState.dwTotalPlayBackNum);
+            System.out.printf("报警通道数: %d%n", sdkState.dwTotalAlarmChanNum);
+            System.out.printf("硬盘格式化路数: %d%n", sdkState.dwTotalFormatNum);
+            System.out.printf("文件搜索路数: %d%n", sdkState.dwTotalFileSearchNum);
+            System.out.printf("日志搜索路数: %d%n", sdkState.dwTotalLogSearchNum);
+            System.out.printf("透明通道路数: %d%n", sdkState.dwTotalSerialNum);
+            System.out.printf("升级路数: %d%n", sdkState.dwTotalUpgradeNum);
+            System.out.printf("语音转发路数: %d%n", sdkState.dwTotalVoiceComNum);
+            System.out.printf("语音广播路数: %d%n", sdkState.dwTotalBroadCastNum);
+        } else {
+            System.out.println("获取SDK状态失败，错误码: "
+                    + hCNetSDK.NET_DVR_GetLastError());
+        }
+
+        // 4. 获取SDK功能支持信息
+        System.out.println("\n== SDK功能信息 ==");
+        HCNetSDK.NET_DVR_SDKABL sdkAbl = new HCNetSDK.NET_DVR_SDKABL();
+
+        result = hCNetSDK.NET_DVR_GetSDKAbility(sdkAbl);
+        if (result) {
+            // 清晰输出每个字段
+            System.out.printf("最大登录用户数: %d%n", sdkAbl.dwMaxLoginNum);
+            System.out.printf("最大实时预览路数: %d%n", sdkAbl.dwMaxRealPlayNum);
+            System.out.printf("最大回放/下载路数: %d%n", sdkAbl.dwMaxPlayBackNum);
+            System.out.printf("最大报警通道路数: %d%n", sdkAbl.dwMaxAlarmChanNum);
+            System.out.printf("最大硬盘格式化路数: %d%n", sdkAbl.dwMaxFormatNum);
+            System.out.printf("最大文件搜索路数: %d%n", sdkAbl.dwMaxFileSearchNum);
+            System.out.printf("最大日志搜索路数: %d%n", sdkAbl.dwMaxLogSearchNum);
+            System.out.printf("最大透明通道路数: %d%n", sdkAbl.dwMaxSerialNum);
+            System.out.printf("最大升级路数: %d%n", sdkAbl.dwMaxUpgradeNum);
+            System.out.printf("最大语音转发路数: %d%n", sdkAbl.dwMaxVoiceComNum);
+            System.out.printf("最大语音广播路数: %d%n", sdkAbl.dwMaxBroadCastNum);
+        } else {
+            System.out.println("获取SDK功能信息失败，错误码: "
+                    + hCNetSDK.NET_DVR_GetLastError());
+        }
+        new Thread(() -> {
+            regularInspection();
+        }).start();
+
 
         getDeviceStatus(lUserID);
 //        getIPChannelInfo(lUserID);
 //        getGisInfo(lUserID);
 //         getIP();
-        Thread.sleep(2000);
+        getCfg(lUserID);
+
+        new CountDownLatch(1).await();
         //程序退出的时候调用注销登录接口，每一台设备分别调用一次
-        if (hCNetSDK.NET_DVR_Logout(lUserID)) {
-            System.out.println("注销成功");
-        }
+//        if (hCNetSDK.NET_DVR_Logout(lUserID)) {
+//            System.out.println("注销成功");
+//        }
 
         //释放SDK资源，程序退出时调用，只需要调用一次
-        hCNetSDK.NET_DVR_Cleanup();
-        return;
+//        hCNetSDK.NET_DVR_Cleanup();
     }
 
     /**
@@ -645,11 +717,8 @@ public class TestDemo {
                 System.out.println("name： " + new String(strPicCfg.sChanName, "GBK").trim());
                 if (m_strIpparaCfg.struStreamMode[iChannum].uGetStream.struChanInfo.byEnable == 1) {
                     System.out.println("IP通道" + channum + "在线");
-
                 } else {
-
                     System.out.println("IP通道" + channum + "不在线");
-
                 }
             }
         }
@@ -659,7 +728,7 @@ public class TestDemo {
     public static void regularInspection() {
         HCNetSDK.NET_DVR_CHECK_DEV_STATE struCheckStatus = new HCNetSDK.NET_DVR_CHECK_DEV_STATE();
         struCheckStatus.read();
-        struCheckStatus.dwTimeout = 1000; //定时检测设备工作状态，单位：ms，0表示使用默认值(30000)，最小值为1000
+        struCheckStatus.dwTimeout = 5000; //定时检测设备工作状态，单位：ms，0表示使用默认值(30000)，最小值为1000
         if (workStateCb == null) {
             workStateCb = new dev_work_state_cb();
         }
