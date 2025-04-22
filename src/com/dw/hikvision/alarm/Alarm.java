@@ -1,6 +1,6 @@
 package com.dw.hikvision.alarm;
 
-import com.dw.hikvision.commom.osSelect;
+import com.dw.hikvision.commom.OsSelect;
 import com.dw.hikvision.demo.HCNetSDK;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
@@ -29,10 +29,10 @@ public class Alarm {
             synchronized (HCNetSDK.class) {
                 String strDllPath = "";
                 try {
-                    if (osSelect.isWindows())
+                    if (OsSelect.isWindows())
                         //win系统加载库路径
                         strDllPath = System.getProperty("user.dir") + "\\lib\\win\\HCNetSDK.dll";
-                    else if (osSelect.isLinux())
+                    else if (OsSelect.isLinux())
                         //Linux系统加载库路径
                         strDllPath = System.getProperty("user.dir") + "/lib/linux/libhcnetsdk.so";
                     hCNetSDK = (HCNetSDK) Native.loadLibrary(strDllPath, HCNetSDK.class);
@@ -58,7 +58,7 @@ public class Alarm {
             }
         }
         //linux系统建议调用以下接口加载组件库
-        if (osSelect.isLinux()) {
+        if (OsSelect.isLinux()) {
             HCNetSDK.BYTE_ARRAY ptrByteArray1 = new HCNetSDK.BYTE_ARRAY(256);
             HCNetSDK.BYTE_ARRAY ptrByteArray2 = new HCNetSDK.BYTE_ARRAY(256);
             //这里是库的绝对路径，请根据实际情况修改，注意改路径必须有访问权限

@@ -1,6 +1,6 @@
 package com.dw.hikvision.demo;
 
-import com.dw.hikvision.commom.osSelect;
+import com.dw.hikvision.commom.OsSelect;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 
@@ -39,11 +39,11 @@ public class ClientDemo {
             synchronized (HCNetSDK.class) {
                 String strDllPath = "";
                 try {
-                    if (osSelect.isWindows())
+                    if (OsSelect.isWindows())
                         //win系统加载库路径
                         strDllPath = System.getProperty("user.dir") + "\\lib\\win\\HCNetSDK.dll";
 
-                    else if (osSelect.isLinux())
+                    else if (OsSelect.isLinux())
                         //Linux系统加载库路径
                         strDllPath = System.getProperty("user.dir") + "/lib/linux/libhcnetsdk.so";
                     hCNetSDK = (HCNetSDK) Native.loadLibrary(strDllPath, HCNetSDK.class);
@@ -66,10 +66,10 @@ public class ClientDemo {
             synchronized (PlayCtrl.class) {
                 String strPlayPath = "";
                 try {
-                    if (osSelect.isWindows())
+                    if (OsSelect.isWindows())
                         //win系统加载库路径
                         strPlayPath = System.getProperty("user.dir") + "\\lib\\win\\PlayCtrl.dll";
-                    else if (osSelect.isLinux())
+                    else if (OsSelect.isLinux())
                         //Linux系统加载库路径
                         strPlayPath = System.getProperty("user.dir") + "/lib/linux/libPlayCtrl.so";
                     playControl=(PlayCtrl) Native.loadLibrary(strPlayPath,PlayCtrl.class);
@@ -97,7 +97,7 @@ public class ClientDemo {
             }
         }
         //linux系统建议调用以下接口加载组件库
-        if (osSelect.isLinux()) {
+        if (OsSelect.isLinux()) {
             HCNetSDK.BYTE_ARRAY ptrByteArray1 = new HCNetSDK.BYTE_ARRAY(256);
             HCNetSDK.BYTE_ARRAY ptrByteArray2 = new HCNetSDK.BYTE_ARRAY(256);
             //这里是库的绝对路径，请根据实际情况修改，注意改路径必须有访问权限
