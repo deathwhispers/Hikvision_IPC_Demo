@@ -1,7 +1,7 @@
 package com.dw.hikvision.alarm;
 
 import com.dw.hikvision.commom.CommonUtil;
-import com.dw.hikvision.demo.HCNetSDK;
+import com.dw.hikvision.sdk.HCNetSDK;
 import com.sun.jna.Pointer;
 
 import java.io.FileNotFoundException;
@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -185,10 +186,11 @@ public class AlarmDataParse {
                         String.format("%02d", netDvrTpsParam.struTime.byHour) +
                         String.format("%02d", netDvrTpsParam.struTime.byMinute) +
                         String.format("%02d", netDvrTpsParam.struTime.bySecond);
-                Short wDeviceID = new Short(netDvrTpsParam.struTPSRealTimeInfo.wDeviceID);//设备ID
+                // 设备ID
+                Short wDeviceID = netDvrTpsParam.struTPSRealTimeInfo.wDeviceID;
                 int channel = netDvrTpsParam.dwChan; //触发报警通道号
-                String byLane = new String(String.valueOf(netDvrTpsParam.struTPSRealTimeInfo.byLane)).trim();// 对应车道号
-                String bySpeed = new String(String.valueOf(netDvrTpsParam.struTPSRealTimeInfo.bySpeed)).trim();// 对应车速（KM/H)
+                String byLane = String.valueOf(netDvrTpsParam.struTPSRealTimeInfo.byLane).trim();// 对应车道号
+                String bySpeed = String.valueOf(netDvrTpsParam.struTPSRealTimeInfo.bySpeed).trim();// 对应车速（KM/H)
                 int dwDownwardFlow = netDvrTpsParam.struTPSRealTimeInfo.dwDownwardFlow;//当前车道 从上到下车流量
                 int dwUpwardFlow = netDvrTpsParam.struTPSRealTimeInfo.dwUpwardFlow;       //当前车道 从下到上车流量
                 System.out.println("通道号：" + channel + "; 时间：" + struTime + ";对应车道号：" + byLane + ";当前车道 从上到下车流量：" + dwDownwardFlow + ";dwUpwardFlow：" + dwUpwardFlow);
@@ -202,7 +204,7 @@ public class AlarmDataParse {
                 netDvrTpsStatisticsInfo.read();
                 int Tpschannel = netDvrTpsStatisticsInfo.dwChan; //触发报警通道号
                 //统计开始时间
-                String struStartTime = "" + String.format("%04d", netDvrTpsStatisticsInfo.struTPSStatisticsInfo.struStartTime.wYear) +
+                String struStartTime = String.format("%04d", netDvrTpsStatisticsInfo.struTPSStatisticsInfo.struStartTime.wYear) +
                         String.format("%02d", netDvrTpsStatisticsInfo.struTPSStatisticsInfo.struStartTime.byMonth) +
                         String.format("%02d", netDvrTpsStatisticsInfo.struTPSStatisticsInfo.struStartTime.byDay) +
                         String.format("%02d", netDvrTpsStatisticsInfo.struTPSStatisticsInfo.struStartTime.byDay) +
@@ -222,7 +224,7 @@ public class AlarmDataParse {
                     byte ParkError = strParkVehicle.byParkError; //停车异常：0- 正常，1- 异常
                     String ParkingNo = new String(strParkVehicle.byParkingNo, "UTF-8"); //车位编号
                     byte LocationStatus = strParkVehicle.byLocationStatus; //车位车辆状态 0- 无车，1- 有车
-                    MonitoringSiteID = strParkVehicle.byMonitoringSiteID.toString();
+                    MonitoringSiteID = Arrays.toString(strParkVehicle.byMonitoringSiteID);
                     String plateNo = new String(strParkVehicle.struPlateInfo.sLicense, "GBK"); //车牌号
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
@@ -271,9 +273,8 @@ public class AlarmDataParse {
                     String sCIDCode = new String(strCIDalarm.sCIDCode, "GBK"); //CID事件号
                     String sCIDDescribe = new String(strCIDalarm.sCIDDescribe, "GBK"); //CID事件名
                     byte bySubSysNo = strCIDalarm.bySubSysNo; //子系统号
-                    if (strCIDalarm.wDefenceNo != 0xff)
-                    {
-                        System.out.println("防区号："+Integer.sum(strCIDalarm.wDefenceNo,1));
+                    if (strCIDalarm.wDefenceNo != 0xff) {
+                        System.out.println("防区号：" + Integer.sum(strCIDalarm.wDefenceNo, 1));
                     }
                     System.out.println("【CID事件】" + "触发时间：" + TriggerTime + "CID事件号：" + sCIDCode + "CID事件名：" + sCIDDescribe + "子系统号：" +
                             bySubSysNo);
@@ -303,7 +304,7 @@ public class AlarmDataParse {
                 Pointer pPlateInfo = m_strISAPIData.getPointer();
                 pPlateInfo.write(0, struEventISAPI.pAlarmData.getByteArray(0, m_strISAPIData.size()), 0, m_strISAPIData.size());
                 m_strISAPIData.read();
-                System.out.println(new String(m_strISAPIData.byValue).trim() +"\n");
+                System.out.println(new String(m_strISAPIData.byValue).trim() + "\n");
 /*
                 FileOutputStream foutdata;
                 try {
@@ -391,7 +392,7 @@ public class AlarmDataParse {
                     case 1: //穿越警戒面 (越界侦测)
                         System.out.println("越界侦测报警发生");
                         strVcaAlarm.struRuleInfo.uEventParam.setType(HCNetSDK.NET_VCA_TRAVERSE_PLANE.class);
-                        System.out.println("检测目标："+strVcaAlarm.struRuleInfo.uEventParam.struTraversePlane.byDetectionTarget); //检测目标，0表示所有目标（表示不锁定检测目标，所有目标都将进行检测），其他取值按位表示不同的检测目标：0x01-人，0x02-车
+                        System.out.println("检测目标：" + strVcaAlarm.struRuleInfo.uEventParam.struTraversePlane.byDetectionTarget); //检测目标，0表示所有目标（表示不锁定检测目标，所有目标都将进行检测），其他取值按位表示不同的检测目标：0x01-人，0x02-车
                         //图片保存
                         if ((strVcaAlarm.dwPicDataLen > 0) && (strVcaAlarm.byPicTransType == 0)) {
                             SimpleDateFormat sf = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -420,7 +421,7 @@ public class AlarmDataParse {
                     case 2: //目标进入区域
                         System.out.println("目标进入区域报警发生");
                         strVcaAlarm.struRuleInfo.uEventParam.setType(HCNetSDK.NET_VCA_AREA.class);
-                        System.out.println("检测目标："+strVcaAlarm.struRuleInfo.uEventParam.struArea.byDetectionTarget);
+                        System.out.println("检测目标：" + strVcaAlarm.struRuleInfo.uEventParam.struArea.byDetectionTarget);
                         //图片保存
                         if ((strVcaAlarm.dwPicDataLen > 0) && (strVcaAlarm.byPicTransType == 0)) {
                             SimpleDateFormat sf = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -449,7 +450,7 @@ public class AlarmDataParse {
                     case 3: //目标离开区域
                         System.out.println("目标离开区域报警触发");
                         strVcaAlarm.struRuleInfo.uEventParam.setType(HCNetSDK.NET_VCA_AREA.class);
-                        System.out.println("检测目标："+strVcaAlarm.struRuleInfo.uEventParam.struArea.byDetectionTarget);
+                        System.out.println("检测目标：" + strVcaAlarm.struRuleInfo.uEventParam.struArea.byDetectionTarget);
                         //图片保存
                         if ((strVcaAlarm.dwPicDataLen > 0) && (strVcaAlarm.byPicTransType == 0)) {
                             SimpleDateFormat sf = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -478,7 +479,7 @@ public class AlarmDataParse {
                     case 4: //周界入侵
                         System.out.println("周界入侵报警发生");
                         strVcaAlarm.struRuleInfo.uEventParam.setType(HCNetSDK.NET_VCA_INTRUSION.class);
-                        System.out.println("检测目标："+strVcaAlarm.struRuleInfo.uEventParam.struIntrusion.byDetectionTarget);
+                        System.out.println("检测目标：" + strVcaAlarm.struRuleInfo.uEventParam.struIntrusion.byDetectionTarget);
                         //图片保存
                         if ((strVcaAlarm.dwPicDataLen > 0) && (strVcaAlarm.byPicTransType == 0)) {
                             SimpleDateFormat sf = new SimpleDateFormat("yyyyMMddHHmmss");

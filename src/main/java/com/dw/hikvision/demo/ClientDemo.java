@@ -1,6 +1,11 @@
 package com.dw.hikvision.demo;
 
 import com.dw.hikvision.commom.OsSelect;
+import com.dw.hikvision.sdk.HCNetSDK;
+import com.dw.hikvision.sdk.PlayCtrl;
+import com.dw.hikvision.sdk.structure.NET_DVR_DEVICEINFO_V40;
+import com.dw.hikvision.sdk.structure.NET_DVR_LOCAL_SDK_PATH;
+import com.dw.hikvision.sdk.structure.NET_DVR_USER_LOGIN_INFO;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 
@@ -24,7 +29,7 @@ public class ClientDemo {
 
     static class FExceptionCallBack_Imp implements HCNetSDK.FExceptionCallBack {
         public void invoke(int dwType, int lUserID, int lHandle, Pointer pUser) {
-            System.out.println("异常事件类型:"+dwType);
+            System.out.println("异常事件类型:" + dwType);
             return;
         }
     }
@@ -72,7 +77,7 @@ public class ClientDemo {
                     else if (OsSelect.isLinux())
                         //Linux系统加载库路径
                         strPlayPath = System.getProperty("user.dir") + "/lib/linux/libPlayCtrl.so";
-                    playControl=(PlayCtrl) Native.loadLibrary(strPlayPath,PlayCtrl.class);
+                    playControl = (PlayCtrl) Native.loadLibrary(strPlayPath, PlayCtrl.class);
 
                 } catch (Exception ex) {
                     System.out.println("loadLibrary: " + strPlayPath + " Error: " + ex.getMessage());
@@ -86,7 +91,7 @@ public class ClientDemo {
 
     public static void main(String[] args) throws InterruptedException {
 
-        if (hCNetSDK == null&&playControl==null) {
+        if (hCNetSDK == null && playControl == null) {
             if (!createSDKInstance()) {
                 System.out.println("Load SDK fail");
                 return;
@@ -113,7 +118,7 @@ public class ClientDemo {
             hCNetSDK.NET_DVR_SetSDKInitCfg(4, ptrByteArray2.getPointer());
 
             String strPathCom = System.getProperty("user.dir") + "/lib/linux/";
-            HCNetSDK.NET_DVR_LOCAL_SDK_PATH struComPath = new HCNetSDK.NET_DVR_LOCAL_SDK_PATH();
+            NET_DVR_LOCAL_SDK_PATH struComPath = new NET_DVR_LOCAL_SDK_PATH();
             System.arraycopy(strPathCom.getBytes(), 0, struComPath.sPath, 0, strPathCom.length());
             struComPath.write();
             hCNetSDK.NET_DVR_SetSDKInitCfg(2, struComPath.getPointer());
@@ -123,27 +128,26 @@ public class ClientDemo {
         boolean initSuc = hCNetSDK.NET_DVR_Init();
 
         //异常消息回调
-        if(fExceptionCallBack == null)
-        {
+        if (fExceptionCallBack == null) {
             fExceptionCallBack = new FExceptionCallBack_Imp();
         }
         Pointer pUser = null;
         if (!hCNetSDK.NET_DVR_SetExceptionCallBack_V30(0, 0, fExceptionCallBack, pUser)) {
-            return ;
+            return;
         }
         System.out.println("设置异常消息回调成功");
 
         //启动SDK写日志
         hCNetSDK.NET_DVR_SetLogToFile(3, "./sdkLog", false);
 
-        login_V40("10.16.36.12",(short) 8000,"admin","hik12345");
+        login_V40("10.16.36.12", (short) 8000, "admin", "hik12345");
 
-        
+
         //注释掉的代码也可以参考，去掉注释可以运行
         //VideoDemo.getIPChannelInfo(lUserID); //获取IP通道             
 
         //实时取流
-        VideoDemo.realPlay(lUserID,lDChannel);
+        VideoDemo.realPlay(lUserID, lDChannel);
 
         //按时间回放和下载
 //          new VideoDemo().playBackBytime(lUserID,33);
@@ -162,12 +166,12 @@ public class ClientDemo {
 //
 //        VideoDemo.playBackByfile(lUserID,33);
         Thread.sleep(3000);
-        
+
         //退出程序时调用，每一台设备分别注销
         if (hCNetSDK.NET_DVR_Logout(lUserID)) {
             System.out.println("注销成功");
         }
-        
+
         //SDK反初始化，释放资源，只需要退出时调用一次
         hCNetSDK.NET_DVR_Cleanup();
         return;
@@ -176,6 +180,7 @@ public class ClientDemo {
 
     /**
      * 设备登录V40 与V30功能一致
+     *
      * @param ip   设备IP
      * @param port SDK端口，默认设备的8000端口
      * @param user 设备用户名
@@ -183,8 +188,8 @@ public class ClientDemo {
      */
     public static void login_V40(String ip, short port, String user, String psw) {
         //注册
-        HCNetSDK.NET_DVR_USER_LOGIN_INFO m_strLoginInfo = new HCNetSDK.NET_DVR_USER_LOGIN_INFO();//设备登录信息
-        HCNetSDK.NET_DVR_DEVICEINFO_V40 m_strDeviceInfo = new HCNetSDK.NET_DVR_DEVICEINFO_V40();//设备信息
+        NET_DVR_USER_LOGIN_INFO m_strLoginInfo = new NET_DVR_USER_LOGIN_INFO();//设备登录信息
+        NET_DVR_DEVICEINFO_V40 m_strDeviceInfo = new NET_DVR_DEVICEINFO_V40();//设备信息
 
         String m_sDeviceIP = ip;//设备ip地址
         m_strLoginInfo.sDeviceAddress = new byte[HCNetSDK.NET_DVR_DEV_ADDRESS_MAX_LEN];
@@ -200,22 +205,21 @@ public class ClientDemo {
 
         m_strLoginInfo.wPort = port;
         m_strLoginInfo.bUseAsynLogin = false; //是否异步登录：0- 否，1- 是
-        m_strLoginInfo.byLoginMode=0;  //0- SDK私有协议，1- ISAPI协议
+        m_strLoginInfo.byLoginMode = 0;  //0- SDK私有协议，1- ISAPI协议
         m_strLoginInfo.write();
 
         lUserID = hCNetSDK.NET_DVR_Login_V40(m_strLoginInfo, m_strDeviceInfo);
-        if (lUserID== -1) {
+        if (lUserID == -1) {
             System.out.println("登录失败，错误码为" + hCNetSDK.NET_DVR_GetLastError());
             return;
         } else {
             System.out.println(ip + ":设备登录成功！");
             //相机一般只有一个通道号，热成像相机有2个通道号，通道号为1或1,2
             //byStartDChan为IP通道起始通道号, 预览回放NVR的IP通道时需要根据起始通道号进行取值
-            if ((int)m_strDeviceInfo.struDeviceV30.byStartDChan == 1 && (int)m_strDeviceInfo.struDeviceV30.byStartDChan == 33)
-            {
+            if ((int) m_strDeviceInfo.struDeviceV30.byStartDChan == 1 && (int) m_strDeviceInfo.struDeviceV30.byStartDChan == 33) {
                 //byStartDChan为IP通道起始通道号, 预览回放NVR的IP通道时需要根据起始通道号进行取值,NVR起始通道号一般是33或者1开始
-                lDChannel = (int)m_strDeviceInfo.struDeviceV30.byStartDChan;
-                System.out.println("预览起始通道号："+lDChannel);
+                lDChannel = (int) m_strDeviceInfo.struDeviceV30.byStartDChan;
+                System.out.println("预览起始通道号：" + lDChannel);
             }
             return;
         }

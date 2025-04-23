@@ -1,7 +1,10 @@
 package com.dw.hikvision.Acs;
 
 import com.dw.hikvision.commom.OsSelect;
-import com.dw.hikvision.demo.HCNetSDK;
+import com.dw.hikvision.sdk.HCNetSDK;
+import com.dw.hikvision.sdk.structure.NET_DVR_DEVICEINFO_V40;
+import com.dw.hikvision.sdk.structure.NET_DVR_LOCAL_SDK_PATH;
+import com.dw.hikvision.sdk.structure.NET_DVR_USER_LOGIN_INFO;
 import com.sun.jna.Native;
 import org.json.JSONException;
 
@@ -77,7 +80,7 @@ public class AcsMain {
             hCNetSDK.NET_DVR_SetSDKInitCfg(4, ptrByteArray2.getPointer());
 
             String strPathCom = System.getProperty("user.dir")+"/lib/linux/";
-            HCNetSDK.NET_DVR_LOCAL_SDK_PATH struComPath = new HCNetSDK.NET_DVR_LOCAL_SDK_PATH();
+            NET_DVR_LOCAL_SDK_PATH struComPath = new NET_DVR_LOCAL_SDK_PATH();
             System.arraycopy(strPathCom.getBytes(), 0, struComPath.sPath, 0, strPathCom.length());
             struComPath.write();
             hCNetSDK.NET_DVR_SetSDKInitCfg(2, struComPath.getPointer());
@@ -191,7 +194,7 @@ public class AcsMain {
      */
     public static void login_V40(String ipadress, String user, String psw, short port) {
         //注册
-        HCNetSDK.NET_DVR_USER_LOGIN_INFO m_strLoginInfo = new HCNetSDK.NET_DVR_USER_LOGIN_INFO();//设备登录信息
+        NET_DVR_USER_LOGIN_INFO m_strLoginInfo = new NET_DVR_USER_LOGIN_INFO();//设备登录信息
         String m_sDeviceIP = ipadress;//设备ip地址
         m_strLoginInfo.sDeviceAddress = new byte[HCNetSDK.NET_DVR_DEV_ADDRESS_MAX_LEN];
         System.arraycopy(m_sDeviceIP.getBytes(), 0, m_strLoginInfo.sDeviceAddress, 0, m_sDeviceIP.length());
@@ -204,7 +207,7 @@ public class AcsMain {
         m_strLoginInfo.wPort = port; //sdk端口
         m_strLoginInfo.bUseAsynLogin = false; //是否异步登录：0- 否，1- 是
         m_strLoginInfo.write();
-        HCNetSDK.NET_DVR_DEVICEINFO_V40 m_strDeviceInfo = new HCNetSDK.NET_DVR_DEVICEINFO_V40();//设备信息
+        NET_DVR_DEVICEINFO_V40 m_strDeviceInfo = new NET_DVR_DEVICEINFO_V40();//设备信息
         lUserID = hCNetSDK.NET_DVR_Login_V40(m_strLoginInfo, m_strDeviceInfo);
         if (lUserID == -1) {
             System.out.println("登录失败，错误码为" + hCNetSDK.NET_DVR_GetLastError());

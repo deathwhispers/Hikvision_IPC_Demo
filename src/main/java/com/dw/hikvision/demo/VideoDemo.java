@@ -1,5 +1,7 @@
 package com.dw.hikvision.demo;
 
+import com.dw.hikvision.sdk.HCNetSDK;
+import com.dw.hikvision.sdk.PlayCtrl;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;

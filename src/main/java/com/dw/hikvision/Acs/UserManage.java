@@ -1,6 +1,6 @@
 package com.dw.hikvision.Acs;
 
-import com.dw.hikvision.demo.HCNetSDK;
+import com.dw.hikvision.sdk.HCNetSDK;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import org.json.JSONException;

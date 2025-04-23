@@ -1,6 +1,6 @@
 package com.dw.hikvision.Acs;
 
-import com.dw.hikvision.demo.HCNetSDK;
+import com.dw.hikvision.sdk.HCNetSDK;
 
 /**
  * @create 2021-04-13-15:23

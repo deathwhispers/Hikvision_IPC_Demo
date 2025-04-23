@@ -1,7 +1,11 @@
 package com.dw.hikvision.alarm;
 
 import com.dw.hikvision.commom.OsSelect;
-import com.dw.hikvision.demo.HCNetSDK;
+import com.dw.hikvision.sdk.HCNetSDK;
+import com.dw.hikvision.sdk.structure.NET_DVR_DEVICEINFO_V30;
+import com.dw.hikvision.sdk.structure.NET_DVR_DEVICEINFO_V40;
+import com.dw.hikvision.sdk.structure.NET_DVR_LOCAL_SDK_PATH;
+import com.dw.hikvision.sdk.structure.NET_DVR_USER_LOGIN_INFO;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 
@@ -74,7 +78,7 @@ public class Alarm {
             hCNetSDK.NET_DVR_SetSDKInitCfg(4, ptrByteArray2.getPointer());
 
             String strPathCom = System.getProperty("user.dir") + "/lib/linux/";
-            HCNetSDK.NET_DVR_LOCAL_SDK_PATH struComPath = new HCNetSDK.NET_DVR_LOCAL_SDK_PATH();
+            NET_DVR_LOCAL_SDK_PATH struComPath = new NET_DVR_LOCAL_SDK_PATH();
             System.arraycopy(strPathCom.getBytes(), 0, struComPath.sPath, 0, strPathCom.length());
             struComPath.write();
             hCNetSDK.NET_DVR_SetSDKInitCfg(2, struComPath.getPointer());
@@ -137,8 +141,8 @@ public class Alarm {
      */
     public static void login_V40(String ip, short port, String user, String psw) {
         //注册
-        HCNetSDK.NET_DVR_USER_LOGIN_INFO m_strLoginInfo = new HCNetSDK.NET_DVR_USER_LOGIN_INFO();//设备登录信息
-        HCNetSDK.NET_DVR_DEVICEINFO_V40 m_strDeviceInfo = new HCNetSDK.NET_DVR_DEVICEINFO_V40();//设备信息
+        NET_DVR_USER_LOGIN_INFO m_strLoginInfo = new NET_DVR_USER_LOGIN_INFO();//设备登录信息
+        NET_DVR_DEVICEINFO_V40 m_strDeviceInfo = new NET_DVR_DEVICEINFO_V40();//设备信息
 
         String m_sDeviceIP = ip;//设备ip地址
         m_strLoginInfo.sDeviceAddress = new byte[HCNetSDK.NET_DVR_DEV_ADDRESS_MAX_LEN];
@@ -176,7 +180,8 @@ public class Alarm {
      * @param psw  设备密码
      */
     public static void login_V30(String ip, short port, String user, String psw) {
-        HCNetSDK.NET_DVR_DEVICEINFO_V30 m_strDeviceInfo = new HCNetSDK.NET_DVR_DEVICEINFO_V30();
+
+        NET_DVR_DEVICEINFO_V30 m_strDeviceInfo = new NET_DVR_DEVICEINFO_V30();
         lUserID = hCNetSDK.NET_DVR_Login_V30(ip, port, user, psw, m_strDeviceInfo);
         System.out.println("UsID:" + lUserID);
         if ((lUserID == -1) || (lUserID == 0xFFFFFFFF)) {

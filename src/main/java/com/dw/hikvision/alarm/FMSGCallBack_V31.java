@@ -1,7 +1,7 @@
 
 package com.dw.hikvision.alarm;
 
-import com.dw.hikvision.demo.HCNetSDK;
+import com.dw.hikvision.sdk.HCNetSDK;
 import com.sun.jna.Pointer;
 
 

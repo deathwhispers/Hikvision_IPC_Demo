@@ -1,7 +1,9 @@
 package com.dw.hikvision.paramcfg;
 
 import com.dw.hikvision.commom.OsSelect;
-import com.dw.hikvision.demo.HCNetSDK;
+import com.dw.hikvision.sdk.HCNetSDK;
+import com.dw.hikvision.sdk.callback.DEV_WORK_STATE_CB;
+import com.dw.hikvision.sdk.structure.*;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
@@ -13,6 +15,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 
+import static com.dw.hikvision.sdk.HCNetSDK.NET_DVR_DEV_ADDRESS_MAX_LEN;
+
 /**
  * @create 2020-07-27-10:42
  */
@@ -21,7 +25,7 @@ public class TestDemo {
     static HCNetSDK hCNetSDK = null;
     static int lUserID = -1; //用户句柄
     public static FlowTestcallback flowcallback;
-    public static dev_work_state_cb workStateCb;
+    public static DEV_WORK_STATE_CB workStateCb;
     public static FExceptionCallBack_Imp fExceptionCallBack;
 
     /**
@@ -75,7 +79,7 @@ public class TestDemo {
             hCNetSDK.NET_DVR_SetSDKInitCfg(4, ptrByteArray2.getPointer());
 
             String strPathCom = System.getProperty("user.dir") + "/lib/linux/";
-            HCNetSDK.NET_DVR_LOCAL_SDK_PATH struComPath = new HCNetSDK.NET_DVR_LOCAL_SDK_PATH();
+            NET_DVR_LOCAL_SDK_PATH struComPath = new NET_DVR_LOCAL_SDK_PATH();
             System.arraycopy(strPathCom.getBytes(), 0, struComPath.sPath, 0, strPathCom.length());
             struComPath.write();
             hCNetSDK.NET_DVR_SetSDKInitCfg(2, struComPath.getPointer());
@@ -195,7 +199,7 @@ public class TestDemo {
      * @param psw  设备密码
      */
     public static int login_V30(String ip, short port, String user, String psw) {
-        HCNetSDK.NET_DVR_DEVICEINFO_V30 m_strDeviceInfo = new HCNetSDK.NET_DVR_DEVICEINFO_V30();
+        NET_DVR_DEVICEINFO_V30 m_strDeviceInfo = new NET_DVR_DEVICEINFO_V30();
         int iUserID = hCNetSDK.NET_DVR_Login_V30(ip, port, user, psw, m_strDeviceInfo);
         System.out.println("UserID:" + lUserID);
         if ((iUserID == -1) || (iUserID == 0xFFFFFFFF)) {
@@ -216,12 +220,12 @@ public class TestDemo {
      * @param psw  设备密码
      */
     public static int login_V40(String ip, short port, String user, String psw) {
-        //注册
-        HCNetSDK.NET_DVR_USER_LOGIN_INFO m_strLoginInfo = new HCNetSDK.NET_DVR_USER_LOGIN_INFO();//设备登录信息
-        HCNetSDK.NET_DVR_DEVICEINFO_V40 m_strDeviceInfo = new HCNetSDK.NET_DVR_DEVICEINFO_V40();//设备信息
+
+        NET_DVR_USER_LOGIN_INFO m_strLoginInfo = new NET_DVR_USER_LOGIN_INFO();//设备登录信息
+        NET_DVR_DEVICEINFO_V40 m_strDeviceInfo = new NET_DVR_DEVICEINFO_V40();//设备信息
 
         String m_sDeviceIP = ip;//设备ip地址
-        m_strLoginInfo.sDeviceAddress = new byte[HCNetSDK.NET_DVR_DEV_ADDRESS_MAX_LEN];
+        m_strLoginInfo.sDeviceAddress = new byte[NET_DVR_DEV_ADDRESS_MAX_LEN];
         System.arraycopy(m_sDeviceIP.getBytes(), 0, m_strLoginInfo.sDeviceAddress, 0, m_sDeviceIP.length());
 
         String m_sUsername = user;//设备用户名
@@ -527,8 +531,8 @@ public class TestDemo {
 
     //球机GIS信息获取
     public static void getGisInfo(int iUserID) {
-        HCNetSDK.NET_DVR_STD_CONFIG struStdCfg = new HCNetSDK.NET_DVR_STD_CONFIG();
-        HCNetSDK.NET_DVR_GIS_INFO struGisInfo = new HCNetSDK.NET_DVR_GIS_INFO();
+        NET_DVR_STD_CONFIG struStdCfg = new NET_DVR_STD_CONFIG();
+        NET_DVR_GIS_INFO struGisInfo = new NET_DVR_GIS_INFO();
         struStdCfg.read();
         IntByReference lchannel = new IntByReference(1);
         struStdCfg.lpCondBuffer = lchannel.getPointer();
@@ -726,11 +730,11 @@ public class TestDemo {
 
     //定时巡检设备
     public static void regularInspection() {
-        HCNetSDK.NET_DVR_CHECK_DEV_STATE struCheckStatus = new HCNetSDK.NET_DVR_CHECK_DEV_STATE();
+        NET_DVR_CHECK_DEV_STATE struCheckStatus = new NET_DVR_CHECK_DEV_STATE();
         struCheckStatus.read();
         struCheckStatus.dwTimeout = 5000; //定时检测设备工作状态，单位：ms，0表示使用默认值(30000)，最小值为1000
         if (workStateCb == null) {
-            workStateCb = new dev_work_state_cb();
+            workStateCb = DevWorkStateCallback.getInstance();
         }
         struCheckStatus.fnStateCB = workStateCb;
         struCheckStatus.write();
@@ -742,7 +746,7 @@ public class TestDemo {
 
     //获取高精度PTZ绝对位置配置,一般热成像设备支持
     public static void getPTZAbsoluteEx(int iUserID) {
-        HCNetSDK.NET_DVR_STD_CONFIG struSTDcfg = new HCNetSDK.NET_DVR_STD_CONFIG();
+        NET_DVR_STD_CONFIG struSTDcfg = new NET_DVR_STD_CONFIG();
         HCNetSDK.NET_DVR_PTZABSOLUTEEX_CFG struPTZ = new HCNetSDK.NET_DVR_PTZABSOLUTEEX_CFG();
         struSTDcfg.read();
         IntByReference channel = new IntByReference(1);
@@ -773,7 +777,7 @@ public class TestDemo {
         streamInfo.dwChannel = 1; //设置通道
         streamInfo.write();
         Pointer lpInBuffer = streamInfo.getPointer();
-        HCNetSDK.NET_DVR_GBT28181_CHANINFO_CFG gbt28181ChaninfoCfg = new HCNetSDK.NET_DVR_GBT28181_CHANINFO_CFG();
+        NET_DVR_GBT28181_CHANINFO_CFG gbt28181ChaninfoCfg = new NET_DVR_GBT28181_CHANINFO_CFG();
         gbt28181ChaninfoCfg.read();
         gbt28181ChaninfoCfg.dwSize = gbt28181ChaninfoCfg.size();
         gbt28181ChaninfoCfg.write();
@@ -808,14 +812,14 @@ public class TestDemo {
 
     //设置球机预置点
     public static void getCruisePoint(int iUserID) {
-        HCNetSDK.NET_DVR_CRUISEPOINT_COND struCruisepointCond = new HCNetSDK.NET_DVR_CRUISEPOINT_COND();
+        NET_DVR_CRUISEPOINT_COND struCruisepointCond = new NET_DVR_CRUISEPOINT_COND();
         struCruisepointCond.read();
         struCruisepointCond.dwSize = struCruisepointCond.size();
         struCruisepointCond.dwChan = 1;
         struCruisepointCond.wRouteNo = 1;
         struCruisepointCond.write();
 
-        HCNetSDK.NET_DVR_CRUISEPOINT_V50 struCruisepointV40 = new HCNetSDK.NET_DVR_CRUISEPOINT_V50();
+        NET_DVR_CRUISEPOINT_V50 struCruisepointV40 = new NET_DVR_CRUISEPOINT_V50();
         struCruisepointV40.read();
         struCruisepointV40.dwSize = struCruisepointV40.size();
         struCruisepointV40.write();

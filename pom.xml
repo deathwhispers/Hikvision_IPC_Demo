@@ -8,33 +8,46 @@
     <version>0.0.1</version>
     <packaging>jar</packaging>
 
+    <properties>
+        <springboot.version>3.0.13</springboot.version>
+        <springfox.version>3.0.0</springfox.version>
+    </properties>
     <dependencies>
-<!--        <dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+            <version>${springboot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>${springboot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-boot-starter</artifactId>
+            <version>${springfox.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>net.java.dev.jna</groupId>
             <artifactId>jna</artifactId>
             <version>5.15.0</version>
-        </dependency>-->
+        </dependency>
 
         <dependency>
             <groupId>com.dw.hikvision</groupId>
             <artifactId>examples</artifactId>
             <version>0.0.1</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/lib/examples.jar</systemPath>
+            <systemPath>${project.basedir}/src/main/resources/libs/hikvision/examples.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.dw.hikvision</groupId>
             <artifactId>json</artifactId>
             <version>0.0.1</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/lib/json.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>com.dw.hikvision</groupId>
-            <artifactId>jna</artifactId>
-            <version>0.0.1</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/jna.jar</systemPath>
+            <systemPath>${project.basedir}/src/main/resources/libs/hikvision/json.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -42,5 +55,6 @@
             <version>1.18.12</version>
             <scope>provided</scope>
         </dependency>
+
     </dependencies>
 </project>
