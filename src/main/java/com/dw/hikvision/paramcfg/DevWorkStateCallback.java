@@ -32,7 +32,7 @@ public class DevWorkStateCallback implements DEV_WORK_STATE_CB {
 
     @Override
     public boolean invoke(Pointer pUserdata, int iUserID, NET_DVR_WORKSTATE_V40 lpWorkState) {
-        System.out.println("");
+        System.out.println("callback >> " + lpWorkState);
         return true;
     }
 

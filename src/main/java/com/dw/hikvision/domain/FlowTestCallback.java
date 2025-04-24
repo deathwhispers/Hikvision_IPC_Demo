@@ -1,6 +1,7 @@
 package com.dw.hikvision.domain;
 
 import com.dw.hikvision.sdk.HCNetSDK;
+import com.dw.hikvision.sdk.callback.FLOWTESTCALLBACK;
 import com.sun.jna.Pointer;
 
 /**
@@ -10,7 +11,7 @@ import com.sun.jna.Pointer;
  * @version 1.0.0
  * Created on 2025/4/14 17:39
  */
-public class FlowTestCallback implements HCNetSDK.FLOWTESTCALLBACK {
+public class FlowTestCallback implements FLOWTESTCALLBACK {
     public void invoke(int lFlowHandle, HCNetSDK.NET_DVR_FLOW_INFO pFlowInfo,
                        Pointer pUser) {
         pFlowInfo.read();

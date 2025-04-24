@@ -1,6 +1,8 @@
 package com.dw.hikvision.sdk;
 
 import com.dw.hikvision.commom.LibraryLoader;
+import com.dw.hikvision.sdk.callback.FExceptionCallBack;
+import com.dw.hikvision.sdk.callback.FLOWTESTCALLBACK;
 import com.dw.hikvision.sdk.structure.*;
 import com.sun.jna.*;
 import com.sun.jna.examples.win32.W32API;
@@ -9071,10 +9073,6 @@ DVR实现巡航数据结构
 
     public static interface FMessageCallBack extends Callback {
         public boolean invoke(int lCommand, String sDVRIP, String pBuf, int dwBufLen, int dwUser);
-    }
-
-    public static interface FExceptionCallBack extends Callback {
-        public void invoke(int dwType, int lUserID, int lHandle, Pointer pUser);
     }
 
     public static interface FDrawFun extends Callback {

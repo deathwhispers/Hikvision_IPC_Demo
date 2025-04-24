@@ -1,6 +1,7 @@
 package com.dw.hikvision.demo;
 
 import com.dw.hikvision.commom.OsSelect;
+import com.dw.hikvision.paramcfg.FExceptionCallBack_Imp;
 import com.dw.hikvision.sdk.HCNetSDK;
 import com.dw.hikvision.sdk.PlayCtrl;
 import com.dw.hikvision.sdk.structure.NET_DVR_DEVICEINFO_V40;
@@ -12,7 +13,7 @@ import com.sun.jna.Pointer;
 import java.util.Timer;
 
 /**
- * @create 2020-12-24-17:55
+ * 2020-12-24-17:55
  */
 public class ClientDemo {
 
@@ -27,17 +28,10 @@ public class ClientDemo {
     static FExceptionCallBack_Imp fExceptionCallBack;
     static int FlowHandle;
 
-    static class FExceptionCallBack_Imp implements HCNetSDK.FExceptionCallBack {
-        public void invoke(int dwType, int lUserID, int lHandle, Pointer pUser) {
-            System.out.println("异常事件类型:" + dwType);
-            return;
-        }
-    }
-
     /**
      * 播放库加载
      *
-     * @return
+     * @return /
      */
     private static boolean createPlayInstance() {
         if (playControl == null) {
@@ -50,7 +44,7 @@ public class ClientDemo {
                     else if (OsSelect.isLinux())
                         //Linux系统加载库路径
                         strPlayPath = System.getProperty("user.dir") + "/lib/linux/libPlayCtrl.so";
-                    playControl = (PlayCtrl) Native.loadLibrary(strPlayPath, PlayCtrl.class);
+                    playControl = (PlayCtrl) Native.load(strPlayPath, PlayCtrl.class);
 
                 } catch (Exception ex) {
                     System.out.println("loadLibrary: " + strPlayPath + " Error: " + ex.getMessage());

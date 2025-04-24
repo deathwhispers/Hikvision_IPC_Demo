@@ -2,9 +2,9 @@ package com.dw.hikvision.commom;
 
 import com.dw.hikvision.sdk.HCNetSDK;
 import com.dw.hikvision.sdk.structure.NET_DVR_LOCAL_SDK_PATH;
+import jakarta.annotation.PostConstruct;
 import org.springframework.context.annotation.Configuration;
 
-import javax.annotation.PostConstruct;
 import java.util.Objects;
 
 
