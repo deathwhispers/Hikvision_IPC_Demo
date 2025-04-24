@@ -14,26 +14,25 @@ import java.io.UnsupportedEncodingException;
 public class UserManage {
     /**
      * 添加人员
-     * @param lUserID 登录句柄
-     * @param employeeNo  工号
+     *
+     * @param lUserID    登录句柄
+     * @param employeeNo 工号
      * @throws UnsupportedEncodingException
      * @throws InterruptedException
      * @throws JSONException
      */
-    public static void addUserInfo(int lUserID,String employeeNo) throws UnsupportedEncodingException, InterruptedException, JSONException {
+    public static void addUserInfo(int lUserID, String employeeNo) throws UnsupportedEncodingException, InterruptedException, JSONException {
         HCNetSDK.BYTE_ARRAY ptrByteArray = new HCNetSDK.BYTE_ARRAY(1024);    //数组
         //"POST /ISAPI/AccessControl/UserInfo/Record?format=json" 此URL也是下发人员
         String strInBuffer = "PUT /ISAPI/AccessControl/UserInfo/SetUp?format=json";
         System.arraycopy(strInBuffer.getBytes(), 0, ptrByteArray.byValue, 0, strInBuffer.length());//字符串拷贝到数组中
         ptrByteArray.write();
 
-        int lHandler = AcsMain.hCNetSDK.NET_DVR_StartRemoteConfig(lUserID, HCNetSDK.NET_DVR_JSON_CONFIG, ptrByteArray.getPointer(), strInBuffer.length(),null, null);
-        if (lHandler < 0)
-        {
-            System.out.println("AddUserInfo NET_DVR_StartRemoteConfig 失败,错误码为"+AcsMain.hCNetSDK.NET_DVR_GetLastError());
+        int lHandler = AcsMain.hCNetSDK.NET_DVR_StartRemoteConfig(lUserID, HCNetSDK.NET_DVR_JSON_CONFIG, ptrByteArray.getPointer(), strInBuffer.length(), null, null);
+        if (lHandler < 0) {
+            System.out.println("AddUserInfo NET_DVR_StartRemoteConfig 失败,错误码为" + AcsMain.hCNetSDK.NET_DVR_GetLastError());
             return;
-        }
-        else{
+        } else {
             System.out.println("AddUserInfo NET_DVR_StartRemoteConfig 成功!");
 
             byte[] Name = "测试".getBytes("utf-8"); //根据iCharEncodeType判断，如果iCharEncodeType返回6，则是UTF-8编码。
@@ -43,7 +42,7 @@ public class UserManage {
             String strInBuffer1 = "{\"UserInfo\":{\"Valid\":{\"beginTime\":\"2017-08-01T17:30:08\",\"enable\":true,\"endTime\":" +
                     "\"2030-08-01T17:30:08\"}," +
                     "\"checkUser\":false,\"doorRight\":\"1\",\"RightPlan\":[{\"doorNo\": 1,\"planTemplateNo\": \"1,3,5\"}]," +
-                    "\"employeeNo\":\""+employeeNo+"\",\"floorNumber\":2,\"maxOpenDoorTime\":0,\"name\":\"";
+                    "\"employeeNo\":\"" + employeeNo + "\",\"floorNumber\":2,\"maxOpenDoorTime\":0,\"name\":\"";
             String strInBuffer2 = "\",\"openDelayEnabled\":false,\"password\":\"123456\",\"roomNumber\":4,\"userType\":\"normal\"}}";
             int iStringSize = Name.length + strInBuffer1.length() + strInBuffer2.length();
 
@@ -58,8 +57,8 @@ public class UserManage {
             HCNetSDK.BYTE_ARRAY ptrOutuff = new HCNetSDK.BYTE_ARRAY(1024);
 
             IntByReference pInt = new IntByReference(0);
-            while(true){
-                int dwState = AcsMain.hCNetSDK.NET_DVR_SendWithRecvRemoteConfig(lHandler, ptrByte.getPointer(), iStringSize ,ptrOutuff.getPointer(), 1024,  pInt);
+            while (true) {
+                int dwState = AcsMain.hCNetSDK.NET_DVR_SendWithRecvRemoteConfig(lHandler, ptrByte.getPointer(), iStringSize, ptrOutuff.getPointer(), 1024, pInt);
                 //读取返回的json并解析
                 ptrOutuff.read();
                 String strResult = new String(ptrOutuff.byValue).trim();
@@ -70,64 +69,52 @@ public class UserManage {
                 String statusString = jsonResult.getString("statusString");
 
 
-                if(dwState == -1){
+                if (dwState == -1) {
                     System.out.println("NET_DVR_SendWithRecvRemoteConfig接口调用失败，错误码：" + AcsMain.hCNetSDK.NET_DVR_GetLastError());
                     break;
-                }
-                else if(dwState == HCNetSDK.NET_SDK_CONFIG_STATUS_NEED_WAIT)
-                {
+                } else if (dwState == HCNetSDK.NET_SDK_CONFIG_STATUS_NEED_WAIT) {
                     System.out.println("配置等待");
                     Thread.sleep(10);
                     continue;
-                }
-                else if(dwState == HCNetSDK.NET_SDK_CONFIG_STATUS_FAILED)
-                {
+                } else if (dwState == HCNetSDK.NET_SDK_CONFIG_STATUS_FAILED) {
                     System.out.println("下发人员失败, json retun:" + jsonResult.toString());
                     break;
-                }
-                else if(dwState == HCNetSDK.NET_SDK_CONFIG_STATUS_EXCEPTION)
-                {
+                } else if (dwState == HCNetSDK.NET_SDK_CONFIG_STATUS_EXCEPTION) {
                     System.out.println("下发人员异常, json retun:" + jsonResult.toString());
                     break;
-                }
-                else if(dwState == HCNetSDK.NET_SDK_CONFIG_STATUS_SUCCESS)
-                {//返回NET_SDK_CONFIG_STATUS_SUCCESS代表流程走通了，但并不代表下发成功，比如有些设备可能因为人员已存在等原因下发失败，所以需要解析Json报文
-                    if (statusCode != 1){
+                } else if (dwState == HCNetSDK.NET_SDK_CONFIG_STATUS_SUCCESS) {//返回NET_SDK_CONFIG_STATUS_SUCCESS代表流程走通了，但并不代表下发成功，比如有些设备可能因为人员已存在等原因下发失败，所以需要解析Json报文
+                    if (statusCode != 1) {
                         System.out.println("下发人员成功,但是有异常情况:" + jsonResult.toString());
-                    }
-                    else{
+                    } else {
                         System.out.println("下发人员成功: json retun:" + jsonResult.toString());
                     }
                     break;
-                }
-                else if(dwState == HCNetSDK.NET_SDK_CONFIG_STATUS_FINISH) {
+                } else if (dwState == HCNetSDK.NET_SDK_CONFIG_STATUS_FINISH) {
                     //下发人员时：dwState其实不会走到这里，因为设备不知道我们会下发多少个人，所以长连接需要我们主动关闭
                     System.out.println("下发人员完成");
                     break;
                 }
             }
-            if(!AcsMain.hCNetSDK.NET_DVR_StopRemoteConfig(lHandler)){
+            if (!AcsMain.hCNetSDK.NET_DVR_StopRemoteConfig(lHandler)) {
                 System.out.println("NET_DVR_StopRemoteConfig接口调用失败，错误码：" + AcsMain.hCNetSDK.NET_DVR_GetLastError());
-            }
-            else{
+            } else {
                 System.out.println("NET_DVR_StopRemoteConfig接口成功");
             }
         }
     }
 
 
-    public static void searchUserInfo(int userID) throws JSONException{
+    public static void searchUserInfo(int userID) throws JSONException {
         HCNetSDK.BYTE_ARRAY ptrByteArray = new HCNetSDK.BYTE_ARRAY(1024);    //数组
         String strInBuffer = "POST /ISAPI/AccessControl/UserInfo/Search?format=json";
         System.arraycopy(strInBuffer.getBytes(), 0, ptrByteArray.byValue, 0, strInBuffer.length());//字符串拷贝到数组中
         ptrByteArray.write();
 
         int lHandler = AcsMain.hCNetSDK.NET_DVR_StartRemoteConfig(userID, HCNetSDK.NET_DVR_JSON_CONFIG, ptrByteArray.getPointer(), strInBuffer.length(), null, null);
-        if(lHandler < 0){
-            System.out.println("SearchUserInfo NET_DVR_StartRemoteConfig 失败,错误码为"+AcsMain.hCNetSDK.NET_DVR_GetLastError());
+        if (lHandler < 0) {
+            System.out.println("SearchUserInfo NET_DVR_StartRemoteConfig 失败,错误码为" + AcsMain.hCNetSDK.NET_DVR_GetLastError());
             return;
-        }
-        else{
+        } else {
             //组装查询的JSON报文，这边查询的是所有的人员
             JSONObject jsonObject = new JSONObject();
             JSONObject jsonSearchCond = new JSONObject();
@@ -156,19 +143,17 @@ public class UserManage {
             ptrInbuff.write();
 
             //定义接收结果的结构体
-            HCNetSDK.BYTE_ARRAY ptrOutuff = new HCNetSDK.BYTE_ARRAY(10*1024);
+            HCNetSDK.BYTE_ARRAY ptrOutuff = new HCNetSDK.BYTE_ARRAY(10 * 1024);
 
             IntByReference pInt = new IntByReference(0);
 
-            while(true){
-                int dwState = AcsMain.hCNetSDK.NET_DVR_SendWithRecvRemoteConfig(lHandler, ptrInbuff.getPointer(), strInbuff.length(), ptrOutuff.getPointer(), 10*1024, pInt);
+            while (true) {
+                int dwState = AcsMain.hCNetSDK.NET_DVR_SendWithRecvRemoteConfig(lHandler, ptrInbuff.getPointer(), strInbuff.length(), ptrOutuff.getPointer(), 10 * 1024, pInt);
                 System.out.println(dwState);
-                if(dwState == -1){
+                if (dwState == -1) {
                     System.out.println("NET_DVR_SendWithRecvRemoteConfig接口调用失败，错误码：" + AcsMain.hCNetSDK.NET_DVR_GetLastError());
                     break;
-                }
-                else if(dwState == HCNetSDK.NET_SDK_CONFIG_STATUS_NEED_WAIT)
-                {
+                } else if (dwState == HCNetSDK.NET_SDK_CONFIG_STATUS_NEED_WAIT) {
                     System.out.println("配置等待");
                     try {
                         Thread.sleep(10);
@@ -177,33 +162,25 @@ public class UserManage {
                         e.printStackTrace();
                     }
                     continue;
-                }
-                else if(dwState == HCNetSDK.NET_SDK_CONFIG_STATUS_FAILED)
-                {
+                } else if (dwState == HCNetSDK.NET_SDK_CONFIG_STATUS_FAILED) {
                     System.out.println("查询人员失败");
                     break;
-                }
-                else if(dwState == HCNetSDK.NET_SDK_CONFIG_STATUS_EXCEPTION)
-                {
+                } else if (dwState == HCNetSDK.NET_SDK_CONFIG_STATUS_EXCEPTION) {
                     System.out.println("查询人员异常");
                     break;
-                }
-                else if(dwState == HCNetSDK.NET_SDK_CONFIG_STATUS_SUCCESS)
-                {
+                } else if (dwState == HCNetSDK.NET_SDK_CONFIG_STATUS_SUCCESS) {
                     ptrOutuff.read();
                     System.out.println("查询人员成功, json:" + new String(ptrOutuff.byValue).trim());
                     break;
-                }
-                else if(dwState == HCNetSDK.NET_SDK_CONFIG_STATUS_FINISH) {
+                } else if (dwState == HCNetSDK.NET_SDK_CONFIG_STATUS_FINISH) {
                     System.out.println("获取人员完成");
                     break;
                 }
             }
 
-            if(!AcsMain.hCNetSDK.NET_DVR_StopRemoteConfig(lHandler)){
+            if (!AcsMain.hCNetSDK.NET_DVR_StopRemoteConfig(lHandler)) {
                 System.out.println("NET_DVR_StopRemoteConfig接口调用失败，错误码：" + AcsMain.hCNetSDK.NET_DVR_GetLastError());
-            }
-            else{
+            } else {
                 System.out.println("NET_DVR_StopRemoteConfig接口成功");
                 lHandler = -1;
             }
@@ -213,7 +190,7 @@ public class UserManage {
     }
 
     public static void deleteUserInfo(int userID) throws JSONException {
-            //删除单个人员
+        //删除单个人员
 //            String deleteUserjson="{\n" +
 //                    "\t\"UserInfoDetail\": {\t\n" +
 //                    "\t\t\"mode\":  \"byEmployeeNo\",\t\n" +
@@ -225,25 +202,25 @@ public class UserManage {
 //                    "\n" +
 //                    "\t}\n" +
 //                    "}";
-            //删除所有人员
-            String deleteUserjson ="{\n" +
-                    "\t\"UserInfoDetail\": {\t\n" +
-                    "\t\t\"mode\":  \"byEmployeeNo\",\t\n" +
-                    "\t\t\"EmployeeNoList\": [\t\n" +
-                    "\t\t]\n" +
-                    "\t}\n" +
-                    "}";
-            String deleteUserUrl="PUT /ISAPI/AccessControl/UserInfoDetail/Delete?format=json";
-            String result= TransIsapi.put_isapi(userID,deleteUserUrl,deleteUserjson);
-            System.out.println(result);
-            //获取删除进度
+        //删除所有人员
+        String deleteUserjson = "{\n" +
+                "\t\"UserInfoDetail\": {\t\n" +
+                "\t\t\"mode\":  \"byEmployeeNo\",\t\n" +
+                "\t\t\"EmployeeNoList\": [\t\n" +
+                "\t\t]\n" +
+                "\t}\n" +
+                "}";
+        String deleteUserUrl = "PUT /ISAPI/AccessControl/UserInfoDetail/Delete?format=json";
+        String result = TransIsapi.put_isapi(userID, deleteUserUrl, deleteUserjson);
+        System.out.println(result);
+        //获取删除进度
         while (true) {
             String getDeleteProcessUrl = "GET /ISAPI/AccessControl/UserInfoDetail/DeleteProcess?format=json";
             String deleteResult = TransIsapi.get_isapi(userID, getDeleteProcessUrl);
             JSONObject jsonObject = new JSONObject(deleteResult);
             JSONObject jsonObject1 = jsonObject.getJSONObject("UserInfoDetailDeleteProcess");
             String process = jsonObject1.getString("status");
-            System.out.println("process ="+process);
+            System.out.println("process =" + process);
             if (process.equals("processing")) {
                 System.out.println("正在删除");
                 continue;
@@ -258,7 +235,7 @@ public class UserManage {
     /**
      * 人员计划模板配置
      *
-     * @param userID 用户登录句柄
+     * @param userID              用户登录句柄
      * @param iPlanTemplateNumber 计划模板编号，从1开始，最大值从门禁能力集获取
      */
     public static void setCardTemplate(int userID, int iPlanTemplateNumber) {
@@ -353,7 +330,7 @@ public class UserManage {
         //设置卡权限周计划参数
         if (false == AcsMain.hCNetSDK.NET_DVR_SetDeviceConfig(userID, HCNetSDK.NET_DVR_SET_CARD_RIGHT_WEEK_PLAN_V50, 1, lpCond, struWeekPlanCond.size(), lpStatusList, lpInbuferCfg, struWeekPlanCfg.size())) {
             System.out.println("NET_DVR_SET_CARD_RIGHT_WEEK_PLAN_V50失败，错误号：" + AcsMain.hCNetSDK.NET_DVR_GetLastError());
-        }else {
+        } else {
             System.out.println("NET_DVR_SET_CARD_RIGHT_WEEK_PLAN_V50成功！");
         }
     }

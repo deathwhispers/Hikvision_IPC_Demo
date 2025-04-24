@@ -1,17 +1,20 @@
 package com.dw.hikvision.Acs;
+
 import com.dw.hikvision.sdk.HCNetSDK;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
+
 import java.io.UnsupportedEncodingException;
+
 /**
- * @create 2021-03-11-14:12
+ * 2021-03-11-14:12
  */
 public class DoorManage {
 
     /**
      * 门状态计划模板配置
      *
-     * @param lUserID 用户登录句柄
+     * @param lUserID         用户登录句柄
      * @param iDoorTemplateNo 计划模板编号，为0表示取消关联，恢复默认状态（普通状态）
      */
     public static void doorTemplate(int lUserID, int iDoorTemplateNo) {
@@ -22,7 +25,7 @@ public class DoorManage {
         struDoorStatus.dwTemplateNo = iDoorTemplateNo;
         struDoorStatus.write();
         boolean b_SetDoorStatus = AcsMain.hCNetSDK.NET_DVR_SetDVRConfig(lUserID, HCNetSDK.NET_DVR_SET_DOOR_STATUS_PLAN, 1, struDoorStatus.getPointer(), struDoorStatus.size());
-        if (b_SetDoorStatus == false) {
+        if (!b_SetDoorStatus) {
             System.out.println("设置门状态计划参数，错误码为" + AcsMain.hCNetSDK.NET_DVR_GetLastError());
             return;
         } else {
@@ -48,7 +51,7 @@ public class DoorManage {
         }
         struDoorTemp.write();
         boolean b_SetDoorTemp = AcsMain.hCNetSDK.NET_DVR_SetDVRConfig(lUserID, HCNetSDK.NET_DVR_SET_DOOR_STATUS_PLAN_TEMPLATE, iDoorTemplateNo, struDoorTemp.getPointer(), struDoorTemp.size());
-        if (b_SetDoorTemp == false) {
+        if (!b_SetDoorTemp) {
             System.out.println("设置门状态计划模板失败，错误码为" + AcsMain.hCNetSDK.NET_DVR_GetLastError());
             return;
         } else {
@@ -60,7 +63,7 @@ public class DoorManage {
         Pointer pstruDoorWeekPlan = struDoorWeekPlan.getPointer();
         IntByReference Ipint = new IntByReference(0);
         boolean b_GetPlan = AcsMain.hCNetSDK.NET_DVR_GetDVRConfig(lUserID, HCNetSDK.NET_DVR_GET_WEEK_PLAN_CFG, 1, pstruDoorWeekPlan, struDoorWeekPlan.size(), Ipint);
-        if (b_GetPlan == false) {
+        if (!b_GetPlan) {
             System.out.println("获取门状态周计划参数失败，错误码为" + AcsMain.hCNetSDK.NET_DVR_GetLastError());
             return;
         } else {
@@ -113,7 +116,7 @@ public class DoorManage {
 	    }*/
         struDoorWeekPlan.write();
         boolean b_SetPlan = AcsMain.hCNetSDK.NET_DVR_SetDVRConfig(lUserID, HCNetSDK.NET_DVR_SET_WEEK_PLAN_CFG, 1, pstruDoorWeekPlan, struDoorWeekPlan.size());
-        if (b_SetPlan == false) {
+        if (!b_SetPlan) {
             System.out.println("获取设置状态周计划参数失败，错误码为" + AcsMain.hCNetSDK.NET_DVR_GetLastError());
             return;
         } else {
@@ -124,15 +127,15 @@ public class DoorManage {
     /**
      * 远程控门
      *
-     * @param lUserID 用户登录句柄
+     * @param lUserID       用户登录句柄
      * @param lGatewayIndex 门禁序号（楼层编号、锁ID），从1开始，-1表示对所有门（或者梯控的所有楼层）进行操作
-     * @param dwStaic 命令值：0- 关闭（对于梯控，表示受控），1- 打开（对于梯控，表示开门），2- 常开（对于梯控，表示自由、通道状态），3- 常关（对于梯控，表示禁用），4- 恢复（梯控，普通状态），5- 访客呼梯（梯控），6- 住户呼梯（梯控）
+     * @param dwStaic       命令值：0- 关闭（对于梯控，表示受控），1- 打开（对于梯控，表示开门），2- 常开（对于梯控，表示自由、通道状态），3- 常关（对于梯控，表示禁用），4- 恢复（梯控，普通状态），5- 访客呼梯（梯控），6- 住户呼梯（梯控）
      */
     public static void controlGateway(int lUserID, int lGatewayIndex, int dwStaic) {
         boolean b_Gate = AcsMain.hCNetSDK.NET_DVR_ControlGateway(lUserID, lGatewayIndex, dwStaic);
-        if (b_Gate == false) {
+        if (!b_Gate) {
             System.out.println("NET_DVR_ControlGateway远程控门失败，错误码为" + AcsMain.hCNetSDK.NET_DVR_GetLastError());
-        }else {
+        } else {
             System.out.println("远程控门成功");
         }
     }

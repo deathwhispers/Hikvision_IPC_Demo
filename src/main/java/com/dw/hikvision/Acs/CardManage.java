@@ -7,10 +7,9 @@ import com.sun.jna.ptr.IntByReference;
 import java.io.UnsupportedEncodingException;
 
 /**
-
- * @create 2021-03-12-13:53
  * 以卡为中心，先下发卡参数（可以一起下发工号），再根据卡号下发人脸、指纹等参数
  * 卡管理模块，实现功能：卡下发、卡获取(单张、所有)、卡删除（单张、所有）、卡计划模块设置
+ * 2021-03-12-13:53
  */
 public class CardManage {
     public static short iPlanTemplateNumber;
@@ -18,9 +17,9 @@ public class CardManage {
     /**
      * 卡下发
      *
-     * @param lUserID 用户登录句柄
-     * @param CardNo 卡号
-     * @param EmployeeNo 工号 卡下发的时候可以一起下发工号
+     * @param lUserID             用户登录句柄
+     * @param CardNo              卡号
+     * @param EmployeeNo          工号 卡下发的时候可以一起下发工号
      * @param iPlanTemplateNumber 关联门计划模板，计划模板的配置可以参考卡计划模板配置模块，(下发卡前要设置好计划模板)
      * @throws UnsupportedEncodingException
      * @throws InterruptedException
@@ -127,10 +126,10 @@ public class CardManage {
     /**
      * 批量卡号下发
      *
-     * @param lUserID 用户登录句柄
-     * @param CardNo 卡号
+     * @param lUserID     用户登录句柄
+     * @param CardNo      卡号
      * @param iEmployeeNo 工号
-     * @param iNum 下发张数
+     * @param iNum        下发张数
      * @throws UnsupportedEncodingException
      * @throws InterruptedException
      */
@@ -228,7 +227,7 @@ public class CardManage {
      * 获取（查询）一张卡
      *
      * @param lUserID 用户登录句柄
-     * @param CardNo 卡号
+     * @param CardNo  卡号
      */
     public static void getOneCard(int lUserID, String CardNo) {
         HCNetSDK.NET_DVR_CARD_COND struCardCond = new HCNetSDK.NET_DVR_CARD_COND();
@@ -389,7 +388,7 @@ public class CardManage {
      * 删除单张卡（删除单张卡号之前要先删除这张卡关联的人脸和指纹信息）
      *
      * @param lUserID 用户登录句柄
-     * @param CardNo 卡号
+     * @param CardNo  卡号
      * @throws UnsupportedEncodingException
      * @throws InterruptedException
      */
@@ -460,8 +459,9 @@ public class CardManage {
     /**
      * 清空设备卡号、人脸、指纹信息
      * 清空设备所有人脸、指纹、卡号信息
-     *
+     * <p>
      * 设备中要清除所有已经下发的卡号，必须先和卡号关联的人脸信息、指纹信息，人脸和指纹清除后清楚，再调用清空卡号的接口，清空设备上所有卡号
+     *
      * @param lUserID 用户登录句柄
      */
     public static void cleanCardInfo(int lUserID) {
@@ -477,7 +477,7 @@ public class CardManage {
         }
         struFaceCtrl.write();
         boolean b_face = AcsMain.hCNetSDK.NET_DVR_RemoteControl(lUserID, HCNetSDK.NET_DVR_DEL_FACE_PARAM_CFG, struFaceCtrl.getPointer(), struFaceCtrl.size());
-        if (b_face == false) {
+        if (!b_face) {
             System.out.println("删除人脸错误，错误码为" + AcsMain.hCNetSDK.NET_DVR_GetLastError());
             return;
         } else {
@@ -495,7 +495,7 @@ public class CardManage {
         }
         struFingerCtrl.write();
         boolean b_finger = AcsMain.hCNetSDK.NET_DVR_RemoteControl(lUserID, HCNetSDK.NET_DVR_DEL_FINGERPRINT_CFG, struFingerCtrl.getPointer(), struFingerCtrl.size());
-        if (b_finger == false) {
+        if (!b_finger) {
             System.out.println("删除指纹错误，错误码为" + AcsMain.hCNetSDK.NET_DVR_GetLastError());
             return;
         } else {
@@ -509,7 +509,7 @@ public class CardManage {
         struAcsPapamType.wLocalControllerID = 0;    //  就地控制器序号[1,255],0代表门禁主机
         struAcsPapamType.write();
         boolean b_AcsCard = AcsMain.hCNetSDK.NET_DVR_RemoteControl(lUserID, HCNetSDK.NET_DVR_CLEAR_ACS_PARAM, struAcsPapamType.getPointer(), struAcsPapamType.size());
-        if (b_AcsCard == false) {
+        if (!b_AcsCard) {
             System.out.println("清空卡号错误，错误码为" + AcsMain.hCNetSDK.NET_DVR_GetLastError());
             return;
         } else {
@@ -520,7 +520,7 @@ public class CardManage {
     /**
      * 卡计划模板配置
      *
-     * @param lUserID 用户登录句柄
+     * @param lUserID             用户登录句柄
      * @param iPlanTemplateNumber 计划模板编号，从1开始，最大值从门禁能力集获取
      */
     public static void setCardTemplate(int lUserID, int iPlanTemplateNumber) {
@@ -550,7 +550,7 @@ public class CardManage {
         struPlanTemCfg.write();
         IntByReference pInt = new IntByReference(0);
         Pointer lpStatusList = pInt.getPointer();
-        if (false == AcsMain.hCNetSDK.NET_DVR_SetDeviceConfig(lUserID, HCNetSDK.NET_DVR_SET_CARD_RIGHT_PLAN_TEMPLATE_V50, 1, struPlanCond.getPointer(), struPlanCond.size(), lpStatusList, struPlanTemCfg.getPointer(), struPlanTemCfg.size())) {
+        if (!AcsMain.hCNetSDK.NET_DVR_SetDeviceConfig(lUserID, HCNetSDK.NET_DVR_SET_CARD_RIGHT_PLAN_TEMPLATE_V50, 1, struPlanCond.getPointer(), struPlanCond.size(), lpStatusList, struPlanTemCfg.getPointer(), struPlanTemCfg.size())) {
             System.out.println("NET_DVR_SET_CARD_RIGHT_PLAN_TEMPLATE_V50失败，错误号：" + AcsMain.hCNetSDK.NET_DVR_GetLastError());
             return;
         }
@@ -613,9 +613,9 @@ public class CardManage {
 	    }*/
         struWeekPlanCfg.write();
         //设置卡权限周计划参数
-        if (false == AcsMain.hCNetSDK.NET_DVR_SetDeviceConfig(lUserID, HCNetSDK.NET_DVR_SET_CARD_RIGHT_WEEK_PLAN_V50, 1, lpCond, struWeekPlanCond.size(), lpStatusList, lpInbuferCfg, struWeekPlanCfg.size())) {
+        if (!AcsMain.hCNetSDK.NET_DVR_SetDeviceConfig(lUserID, HCNetSDK.NET_DVR_SET_CARD_RIGHT_WEEK_PLAN_V50, 1, lpCond, struWeekPlanCond.size(), lpStatusList, lpInbuferCfg, struWeekPlanCfg.size())) {
             System.out.println("NET_DVR_SET_CARD_RIGHT_WEEK_PLAN_V50失败，错误号：" + AcsMain.hCNetSDK.NET_DVR_GetLastError());
-        }else {
+        } else {
             System.out.println("NET_DVR_SET_CARD_RIGHT_WEEK_PLAN_V50成功！");
         }
     }

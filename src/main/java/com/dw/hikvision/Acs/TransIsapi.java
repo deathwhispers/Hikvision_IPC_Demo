@@ -3,8 +3,8 @@ package com.dw.hikvision.Acs;
 import com.dw.hikvision.sdk.HCNetSDK;
 
 /**
- * @create 2021-04-13-15:23
  * 功能：透传接口实现，透传ISAPI命令
+ * 2021-04-13-15:23
  */
 public final class TransIsapi {
 
@@ -37,7 +37,7 @@ public final class TransIsapi {
         struXMLOutput.write();
         if (!AcsMain.hCNetSDK.NET_DVR_STDXMLConfig(lUserID, struXMLInput, struXMLOutput)) {
             int iErr = AcsMain.hCNetSDK.NET_DVR_GetLastError();
-            System.err.println("NET_DVR_STDXMLConfig失败，错误号" + iErr+"----URL:"+url);
+            System.err.println("NET_DVR_STDXMLConfig失败，错误号" + iErr + "----URL:" + url);
             return null;
         } else {
             stringXMLOut.read();
@@ -82,9 +82,9 @@ public final class TransIsapi {
         struXMLOutput.lpStatusBuffer = struXMLStatus.getPointer();
         struXMLOutput.dwStatusSize = struXMLStatus.size();
         struXMLOutput.write();
-        if (!AcsMain.hCNetSDK.NET_DVR_STDXMLConfig(lUserID, struXMLInput, struXMLOutput)){
+        if (!AcsMain.hCNetSDK.NET_DVR_STDXMLConfig(lUserID, struXMLInput, struXMLOutput)) {
             int iErr = AcsMain.hCNetSDK.NET_DVR_GetLastError();
-            System.err.println("NET_DVR_STDXMLConfig失败，错误号" + iErr+"----URL:"+url);
+            System.err.println("NET_DVR_STDXMLConfig失败，错误号" + iErr + "----URL:" + url);
             return null;
         } else {
             stringXMLOut.read();

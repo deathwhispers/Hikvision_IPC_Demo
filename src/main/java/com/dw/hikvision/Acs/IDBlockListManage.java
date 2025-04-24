@@ -4,34 +4,29 @@ import com.dw.hikvision.sdk.HCNetSDK;
 import com.sun.jna.Pointer;
 
 /**
- *身份证禁止名单下发，需要设备支持此功能，例如DS-5604
+ * 身份证禁止名单下发，需要设备支持此功能，例如DS-5604
  * 实现功能：禁止人员名单下发、逐条删除、清空
  */
-
-
 public class IDBlockListManage {
     public static FRemoteConfigCallback callback = null;
 
-   public static class FRemoteConfigCallback implements HCNetSDK.FRemoteConfigCallBack {
-        public void invoke(int dwType, Pointer lpBuffer, int dwBufLen, Pointer pUserData)
-        {
+    public static class FRemoteConfigCallback implements HCNetSDK.FRemoteConfigCallBack {
+        public void invoke(int dwType, Pointer lpBuffer, int dwBufLen, Pointer pUserData) {
             System.err.println("NET_DVR_StartRemoteConfig Callback：" + dwType);
-            switch (dwType)
-            {
+            switch (dwType) {
                 case 0:
-                    HCNetSDK.REMOTECONFIGSTATUS struCfgStatus  = new HCNetSDK.REMOTECONFIGSTATUS();
+                    HCNetSDK.REMOTECONFIGSTATUS struCfgStatus = new HCNetSDK.REMOTECONFIGSTATUS();
                     struCfgStatus.write();
                     Pointer pCfgStatus = struCfgStatus.getPointer();
-                    pCfgStatus.write(0, lpBuffer.getByteArray(0, struCfgStatus.size()), 0,struCfgStatus.size());
+                    pCfgStatus.write(0, lpBuffer.getByteArray(0, struCfgStatus.size()), 0, struCfgStatus.size());
                     struCfgStatus.read();
                     int iStatus = 0;
-                    for(int i=0;i<4;i++)
-                    {
-                        int ioffset = i*8;
-                        int iByte = struCfgStatus.byStatus[i]&0xff;
+                    for (int i = 0; i < 4; i++) {
+                        int ioffset = i * 8;
+                        int iByte = struCfgStatus.byStatus[i] & 0xff;
                         iStatus = iStatus + (iByte << ioffset);
                     }
-                    switch (iStatus){
+                    switch (iStatus) {
                         case 1000:// NET_SDK_CALLBACK_STATUS_SUCCESS
                             System.out.println("下发成功,dwStatus:" + iStatus);
                             break;
@@ -40,10 +35,9 @@ public class IDBlockListManage {
                             break;
                         case 1002:
                             int iErrorCode = 0;
-                            for(int i=0;i<4;i++)
-                            {
-                                int ioffset = i*8;
-                                int iByte = struCfgStatus.byErrorCode[i]&0xff;
+                            for (int i = 0; i < 4; i++) {
+                                int ioffset = i * 8;
+                                int iByte = struCfgStatus.byErrorCode[i] & 0xff;
                                 iErrorCode = iErrorCode + (iByte << ioffset);
                             }
                             System.err.println("下发失败, dwStatus:" + iStatus + "错误号:" + iErrorCode);
@@ -66,11 +60,10 @@ public class IDBlockListManage {
         startParams.dwBlockListNum = 1;     //下发禁止名单数量
         startParams.write();
 
-        if (callback==null)
-        {
-            FRemoteConfigCallback callback=new FRemoteConfigCallback();
+        if (callback == null) {
+            FRemoteConfigCallback callback = new FRemoteConfigCallback();
         }
-        int lHandle = AcsMain.hCNetSDK.NET_DVR_StartRemoteConfig(lUserID, HCNetSDK.NET_DVR_BULK_UPLOAD_ID_BLOCKLIST, startParams.getPointer(), startParams.size(),callback, Pointer.NULL);
+        int lHandle = AcsMain.hCNetSDK.NET_DVR_StartRemoteConfig(lUserID, HCNetSDK.NET_DVR_BULK_UPLOAD_ID_BLOCKLIST, startParams.getPointer(), startParams.size(), callback, Pointer.NULL);
 
         if (lHandle < 0) {
             System.out.println("NET_DVR_StartRemoteConfig失败，错误号：" + AcsMain.hCNetSDK.NET_DVR_GetLastError());
@@ -131,7 +124,7 @@ public class IDBlockListManage {
         struAcsParam.wLocalControllerID = 0;  // 就地控制器序号。0代表门禁设备
         struAcsParam.write();
         if (!AcsMain.hCNetSDK.NET_DVR_RemoteControl(lUserID, HCNetSDK.NET_DVR_CLEAR_ACS_PARAM, struAcsParam.getPointer(), struAcsParam.size())) {
-            System.err.println("清空身份证禁止名单失败，错误码为"+AcsMain.hCNetSDK.NET_DVR_GetLastError());
+            System.err.println("清空身份证禁止名单失败，错误码为" + AcsMain.hCNetSDK.NET_DVR_GetLastError());
             return;
         } else {
             System.out.println("清除成功");

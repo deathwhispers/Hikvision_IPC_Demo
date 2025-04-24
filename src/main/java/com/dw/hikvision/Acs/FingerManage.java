@@ -19,9 +19,7 @@ public class FingerManage {
      *
      * @param lUserID 用户登录句柄
      * @param CardNo  卡号
-     * @throws InterruptedException
-     *
-     * 注意: 下发的指纹数据长度为512位,如果直接调用采集接口从设备采集到的指纹数据长度为768位,需要做截取
+     * @throws InterruptedException 注意: 下发的指纹数据长度为512位,如果直接调用采集接口从设备采集到的指纹数据长度为768位,需要做截取
      */
     public static void setOneFinger(int lUserID, String CardNo) throws InterruptedException {
         HCNetSDK.NET_DVR_FINGERPRINT_COND struFingerCond = new HCNetSDK.NET_DVR_FINGERPRINT_COND();

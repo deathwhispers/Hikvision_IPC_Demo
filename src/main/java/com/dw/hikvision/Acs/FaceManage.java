@@ -10,7 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- *  人脸管理模块
+ * 人脸管理模块
  * 实现功能:人脸下发(单张、多张)、人脸查询、人脸删除、人脸采集
  */
 public class FaceManage {
@@ -20,7 +20,7 @@ public class FaceManage {
      * 下发一张人脸
      *
      * @param lUserID 用户登录句柄
-     * @param CardNo 卡号
+     * @param CardNo  卡号
      * @throws InterruptedException
      */
     public static void setOneFace(int lUserID, String CardNo) throws InterruptedException {
@@ -212,7 +212,7 @@ public class FaceManage {
      * 查询单张卡号关联的人脸信息
      *
      * @param lUserID 用户登录句柄
-     * @param CardNo 卡号
+     * @param CardNo  卡号
      */
     public static void getFaceCfg(int lUserID, String CardNo) {
         HCNetSDK.NET_DVR_FACE_COND struFaceCond = new HCNetSDK.NET_DVR_FACE_COND();
@@ -296,7 +296,7 @@ public class FaceManage {
      * 删除单独人脸信息
      *
      * @param lUserID 用户登录句柄
-     * @param CardNo 卡号
+     * @param CardNo  卡号
      * @throws UnsupportedEncodingException
      * @throws InterruptedException
      */
