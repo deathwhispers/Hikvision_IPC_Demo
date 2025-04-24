@@ -17,8 +17,8 @@ import static com.dw.hikvision.demo.ClientDemo.playControl;
 
 /**
  * 视频取流预览，下载，抓图mok
- *
- * @create 2022-03-30-9:48
+ * <p>
+ * 2022-03-30-9:48
  */
 public class VideoDemo {
     Timer downloadtimer;//下载用定时器

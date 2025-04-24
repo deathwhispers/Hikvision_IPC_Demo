@@ -9137,12 +9137,6 @@ DVR实现巡航数据结构
         public int invoke(int dwType, int lIndex);
     }
 
-    public static interface FLOWTESTCALLBACK extends Callback {
-        public void invoke(int lFlowHandle, NET_DVR_FLOW_INFO pFlowInfo,
-                           Pointer pUser);
-    }
-
-
     boolean NET_DVR_Init();
 
     boolean NET_DVR_Cleanup();

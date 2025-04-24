@@ -35,33 +35,6 @@ public class ClientDemo {
     }
 
     /**
-     * 动态库加载
-     *
-     * @return
-     */
-    private static boolean createSDKInstance() {
-        if (hCNetSDK == null) {
-            synchronized (HCNetSDK.class) {
-                String strDllPath = "";
-                try {
-                    if (OsSelect.isWindows())
-                        //win系统加载库路径
-                        strDllPath = System.getProperty("user.dir") + "\\lib\\win\\HCNetSDK.dll";
-
-                    else if (OsSelect.isLinux())
-                        //Linux系统加载库路径
-                        strDllPath = System.getProperty("user.dir") + "/lib/linux/libhcnetsdk.so";
-                    hCNetSDK = (HCNetSDK) Native.loadLibrary(strDllPath, HCNetSDK.class);
-                } catch (Exception ex) {
-                    System.out.println("loadLibrary: " + strDllPath + " Error: " + ex.getMessage());
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    /**
      * 播放库加载
      *
      * @return
@@ -92,10 +65,6 @@ public class ClientDemo {
     public static void main(String[] args) throws InterruptedException {
 
         if (hCNetSDK == null && playControl == null) {
-            if (!createSDKInstance()) {
-                System.out.println("Load SDK fail");
-                return;
-            }
             if (!createPlayInstance()) {
                 System.out.println("Load PlayCtrl fail");
                 return;

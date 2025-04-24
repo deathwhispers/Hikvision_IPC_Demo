@@ -57,41 +57,6 @@ public class AudioTest {
     }
 
     public static void main(String args[]) throws InterruptedException {
-        if (hCNetSDK == null) {
-            if (!createSDKInstance()) {
-                System.out.println("Load SDK fail");
-                return;
-            }
-        }
-        //linux系统建议调用以下接口加载组件库
-        if (OsSelect.isLinux()) {
-            HCNetSDK.BYTE_ARRAY ptrByteArray1 = new HCNetSDK.BYTE_ARRAY(256);
-            HCNetSDK.BYTE_ARRAY ptrByteArray2 = new HCNetSDK.BYTE_ARRAY(256);
-            //这里是库的绝对路径，请根据实际情况修改，注意改路径必须有访问权限
-            String strPath1 = System.getProperty("user.dir") + "/lib/linux/libcrypto.so.1.1";
-            String strPath2 = System.getProperty("user.dir") + "/lib/linux/libssl.so.1.1";
-
-
-            System.arraycopy(strPath1.getBytes(), 0, ptrByteArray1.byValue, 0, strPath1.length());
-            ptrByteArray1.write();
-            hCNetSDK.NET_DVR_SetSDKInitCfg(3, ptrByteArray1.getPointer());
-
-            System.arraycopy(strPath2.getBytes(), 0, ptrByteArray2.byValue, 0, strPath2.length());
-            ptrByteArray2.write();
-            hCNetSDK.NET_DVR_SetSDKInitCfg(4, ptrByteArray2.getPointer());
-
-            String strPathCom = System.getProperty("user.dir") + "/lib/linux/";
-            NET_DVR_LOCAL_SDK_PATH struComPath = new NET_DVR_LOCAL_SDK_PATH();
-            System.arraycopy(strPathCom.getBytes(), 0, struComPath.sPath, 0, strPathCom.length());
-            struComPath.write();
-            hCNetSDK.NET_DVR_SetSDKInitCfg(2, struComPath.getPointer());
-        }
-
-        boolean initSuc = hCNetSDK.NET_DVR_Init();
-        if (initSuc != true) {
-            System.out.println("初始化失败");
-        }
-        hCNetSDK.NET_DVR_SetLogToFile(3, "./sdkLog", false);
         //设置语音对讲回调函数
         if (voiceDatacallback == null) {
             voiceDatacallback = new VoiceDataCallBack();
@@ -101,8 +66,6 @@ public class AudioTest {
         if (cbVoiceDataCallBack == null) {
             cbVoiceDataCallBack = new cbVoiceDataCallBack_MR_V30();
         }
-
-        AudioTest.login_V40("10.16.36.29", (short) 8000, "admin", "hik12345");
 
         //开启语音对讲
 /*		AudioTest.startVoiceCom(lUserID);
@@ -116,64 +79,10 @@ public class AudioTest {
         }
         Thread.sleep(1000);
 
-
-        AudioTest.logout();
         //释放SDK
         hCNetSDK.NET_DVR_Cleanup();
 
     }
-
-
-    /**
-     * 设备登录V40 与V30功能一致
-     *
-     * @param ip   设备IP
-     * @param port SDK端口，默认设备的8000端口
-     * @param user 设备用户名
-     * @param psw  设备密码
-     */
-    public static boolean login_V40(String ip, short port, String user, String psw) {
-        //注册
-        NET_DVR_USER_LOGIN_INFO m_strLoginInfo = new NET_DVR_USER_LOGIN_INFO();//设备登录信息
-        NET_DVR_DEVICEINFO_V40 m_strDeviceInfo = new NET_DVR_DEVICEINFO_V40();//设备信息
-
-        String m_sDeviceIP = ip;//设备ip地址
-        m_strLoginInfo.sDeviceAddress = new byte[HCNetSDK.NET_DVR_DEV_ADDRESS_MAX_LEN];
-        System.arraycopy(m_sDeviceIP.getBytes(), 0, m_strLoginInfo.sDeviceAddress, 0, m_sDeviceIP.length());
-
-        String m_sUsername = user;//设备用户名
-        m_strLoginInfo.sUserName = new byte[HCNetSDK.NET_DVR_LOGIN_USERNAME_MAX_LEN];
-        System.arraycopy(m_sUsername.getBytes(), 0, m_strLoginInfo.sUserName, 0, m_sUsername.length());
-
-        String m_sPassword = psw;//设备密码
-        m_strLoginInfo.sPassword = new byte[HCNetSDK.NET_DVR_LOGIN_PASSWD_MAX_LEN];
-        System.arraycopy(m_sPassword.getBytes(), 0, m_strLoginInfo.sPassword, 0, m_sPassword.length());
-        m_strLoginInfo.wPort = port;
-        m_strLoginInfo.bUseAsynLogin = false; //是否异步登录：0- 否，1- 是
-        m_strLoginInfo.write();
-        lUserID = hCNetSDK.NET_DVR_Login_V40(m_strLoginInfo, m_strDeviceInfo);
-        if (lUserID == -1) {
-            System.out.println("登录失败，错误码为" + hCNetSDK.NET_DVR_GetLastError());
-            return false;
-
-        } else {
-            System.out.println(ip + ":设备登录成功！");
-            return true;
-        }
-    }
-
-    /**
-     * 设备注销
-     */
-    public static boolean logout() {
-
-        if (hCNetSDK.NET_DVR_Logout(lUserID)) {
-            System.out.println("注销成功");
-        }
-
-        return true;
-    }
-
 
     /**
      * 开启语音对讲

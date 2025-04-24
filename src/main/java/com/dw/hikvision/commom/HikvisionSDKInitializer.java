@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import javax.annotation.PostConstruct;
 import java.util.Objects;
 
+
 /**
  * 初始化 sdk
  *

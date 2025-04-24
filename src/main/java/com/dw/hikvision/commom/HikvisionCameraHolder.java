@@ -3,9 +3,7 @@ package com.dw.hikvision.commom;
 import com.dw.hikvision.domain.HikvisionCamera;
 import com.dw.hikvision.sdk.HCNetSDK;
 import jakarta.annotation.PreDestroy;
-import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;

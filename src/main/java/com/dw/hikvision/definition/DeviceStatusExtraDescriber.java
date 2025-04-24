@@ -1,5 +1,6 @@
 package com.dw.hikvision.definition;
 
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * 定义设备额外属性值与描述的映射
